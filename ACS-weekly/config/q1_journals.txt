@@ -1,0 +1,27 @@
+# Starter allow-list. Verify/update against your preferred current JCR source.
+# One journal title per line.
+European Heart Journal
+Journal of the American College of Cardiology
+Circulation
+JAMA Cardiology
+European Journal of Preventive Cardiology
+European Journal of Heart Failure
+Journal of the American Heart Association
+Circulation: Cardiovascular Quality and Outcomes
+Circulation: Heart Failure
+Circulation: Cardiovascular Interventions
+JACC: Cardiovascular Interventions
+JACC: Heart Failure
+JACC: Advances
+JACC: Asia
+Nature Reviews Cardiology
+Cardiovascular Research
+Atherosclerosis
+American Journal of Preventive Cardiology
+Mayo Clinic Proceedings
+The Lancet
+The Lancet Digital Health
+The Lancet Regional Health - Europe
+JAMA
+BMJ
+New England Journal of Medicine
