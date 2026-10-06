@@ -115,14 +115,62 @@ def render(report,start,end,total,q1n):
     final=sum(len(v) for v in report['sections'].values())
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ACS & Secondary Prevention Weekly · {end:%d %b %Y}</title><style>:root{{--navy:#0b2d4d;--blue:#145a8d;--bg:#f4f7fa;--text:#1f2933;--muted:#687784;--line:#dce4ea;--gold:#966d00}}*{{box-sizing:border-box}}body{{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}}header{{background:linear-gradient(135deg,var(--navy),var(--blue));color:white;padding:42px 20px}}.wrap{{max-width:980px;margin:auto}}h1{{margin:0 0 8px;font-size:clamp(2rem,5vw,3.2rem)}}header p{{margin:4px 0;opacity:.9}}main{{padding:28px 20px 60px}}section{{margin:32px 0}}h2{{color:var(--navy)}}.top-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}}.top-card,.paper{{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 4px 15px rgba(15,45,70,.06)}}.top-card{{display:flex;flex-direction:column;gap:7px;text-decoration:none;color:inherit}}.top-card span,.rating{{color:var(--gold)}}.paper{{margin:14px 0;padding:22px}}.paper h3{{margin:8px 0 5px}}.meta,.authors{{color:var(--muted);font-size:.9rem}}.paper-top{{display:flex;justify-content:space-between}}.must{{font-weight:800;color:#9a5e00}}.why{{background:#f6f9fb;border-left:4px solid var(--blue);padding:10px 12px}}a{{color:var(--blue)}}.stats,.empty{{background:white;border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--muted)}}footer{{border-top:1px solid var(--line);padding:25px 20px;color:var(--muted);font-size:.82rem;background:white}}@media(max-width:760px){{.top-grid{{grid-template-columns:1fr}}}}</style></head><body><header><div class="wrap"><h1>ACS & Secondary Prevention Weekly</h1><p>Curated PubMed literature surveillance</p><p>{start:%d %B %Y} – {end:%d %B %Y}</p></div></header><main class="wrap"><div class="stats">PubMed candidates: {total} · Q1 allow-list matches: {q1n} · Final selection: {final}</div><section><h2>Top papers this week</h2><div class="top-grid">{top}</div></section>{sections}</main><footer><div class="wrap"><strong>ACS & Secondary Prevention Weekly</strong><br>Automated PubMed surveillance. Q1 eligibility uses the repository's manually maintained allow-list. Verify the original publication before clinical or scientific use.</div></footer></body></html>'''
 
-def send_email(report,end):
-    user=os.getenv('SMTP_USER','').strip(); pwd=os.getenv('SMTP_APP_PASSWORD','').strip(); rec=os.getenv('REPORT_RECIPIENT','').strip()
-    if not all([user,pwd,rec]): print('Email not configured; skipping.'); return
-    bullets=''.join(f'<li style="margin-bottom:12px"><strong>{esc(p["title"])}</strong><br>{esc(p["journal"])}<br>{esc(p.get("why_it_matters"))}</li>' for p in report['top_papers'][:3]) or '<li>No priority eligible papers this week.</li>'
-    msg=EmailMessage(); msg['Subject']=f'ACS & Secondary Prevention Weekly — {end:%d %b %Y}'; msg['From']=user; msg['To']=rec
+def send_email(report, end):
+    user = os.getenv('SMTP_USER', '').strip()
+    pwd = os.getenv('SMTP_APP_PASSWORD', '').strip()
+
+    recipients = [
+        x.strip()
+        for x in os.getenv('REPORT_RECIPIENT', '').split(',')
+        if x.strip()
+    ]
+
+    if not user or not pwd or not recipients:
+        print('Email not configured; skipping.')
+        return
+
+    bullets = ''.join(
+        f'<li style="margin-bottom:12px"><strong>{esc(p["title"])}</strong><br>'
+        f'{esc(p["journal"])}<br>{esc(p.get("why_it_matters"))}</li>'
+        for p in report['top_papers'][:3]
+    ) or '<li>No priority eligible papers this week.</li>'
+
+    msg = EmailMessage()
+    msg['Subject'] = f'ACS & Secondary Prevention Weekly — {end:%d %b %Y}'
+    msg['From'] = user
+    msg['To'] = user
+    msg['Bcc'] = ', '.join(recipients)
+
     msg.set_content(f'Weekly report: {SITE_URL}')
-    msg.add_alternative(f'<html><body style="font-family:Arial"><h2>ACS & Secondary Prevention Weekly</h2><ol>{bullets}</ol><p><a href="{esc(SITE_URL)}" style="background:#0b2d4d;color:white;padding:12px 18px;text-decoration:none;border-radius:8px">View full weekly report</a></p></body></html>',subtype='html')
-    with smtplib.SMTP_SSL('smtp.gmail.com',465,context=ssl.create_default_context()) as s: s.login(user,pwd); s.send_message(msg)
+
+    msg.add_alternative(
+        f'''
+        <html>
+        <body style="font-family:Arial">
+            <h2>ACS & Secondary Prevention Weekly</h2>
+            <ol>{bullets}</ol>
+            <p>
+                <a href="{esc(SITE_URL)}"
+                   style="background:#0b2d4d;color:white;padding:12px 18px;
+                          text-decoration:none;border-radius:8px">
+                    View full weekly report
+                </a>
+            </p>
+        </body>
+        </html>
+        ''',
+        subtype='html'
+    )
+
+    with smtplib.SMTP_SSL(
+        'smtp.gmail.com',
+        465,
+        context=ssl.create_default_context()
+    ) as s:
+        s.login(user, pwd)
+        s.send_message(msg)
+
+    print(f'Email sent to {len(recipients)} recipients')
 
 def main():
     end=date.today(); start=end-timedelta(days=7); allowed,_=load_q1(); ids=search_pubmed(start,end); arts=parse_pubmed(ids)
