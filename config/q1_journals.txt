@@ -1,27 +1,26 @@
-# Starter allow-list. Verify/update against your preferred current JCR source.
-# One journal title per line.
-European Heart Journal
-Journal of the American College of Cardiology
+# One NLM Title Abbreviation per line.
+Eur Heart J
+J Am Coll Cardiol
 Circulation
-JAMA Cardiology
-European Journal of Preventive Cardiology
-European Journal of Heart Failure
-Journal of the American Heart Association
-Circulation: Cardiovascular Quality and Outcomes
-Circulation: Heart Failure
-Circulation: Cardiovascular Interventions
-JACC: Cardiovascular Interventions
-JACC: Heart Failure
-JACC: Advances
-JACC: Asia
-Nature Reviews Cardiology
-Cardiovascular Research
+JAMA Cardiol
+Eur J Prev Cardiol
+Eur J Heart Fail
+J Am Heart Assoc
+Circ Cardiovasc Qual Outcomes
+Circ Heart Fail
+Circ Cardiovasc Interv
+JACC Cardiovasc Interv
+JACC Heart Fail
+JACC Adv
+JACC Asia
+Nat Rev Cardiol
+Cardiovasc Res
 Atherosclerosis
-American Journal of Preventive Cardiology
-Mayo Clinic Proceedings
-The Lancet
-The Lancet Digital Health
-The Lancet Regional Health - Europe
+Am J Prev Med
+Mayo Clin Proc
+Lancet
+Lancet Digit Health
+Lancet Reg Health Eur
 JAMA
 BMJ
-New England Journal of Medicine
+N Engl J Med
